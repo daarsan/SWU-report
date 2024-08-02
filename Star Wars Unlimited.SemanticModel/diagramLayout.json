@@ -1,0 +1,126 @@
+{
+  "version": "1.1.0",
+  "diagrams": [
+    {
+      "ordinal": 0,
+      "scrollPosition": {
+        "x": 0,
+        "y": 0
+      },
+      "nodes": [
+        {
+          "location": {
+            "x": 0,
+            "y": 1
+          },
+          "nodeIndex": "Blueprints",
+          "nodeLineageTag": "c8edd94e-3420-401e-93d1-0690cf257018",
+          "size": {
+            "height": 300,
+            "width": 234
+          },
+          "zIndex": 1
+        },
+        {
+          "location": {
+            "x": 582,
+            "y": 0
+          },
+          "nodeIndex": "Expansions",
+          "nodeLineageTag": "a9092925-6528-4dcd-8530-1d6bbf4b20d7",
+          "size": {
+            "height": 176,
+            "width": 234
+          },
+          "zIndex": 4
+        },
+        {
+          "location": {
+            "x": 868.12767372539759,
+            "y": 0
+          },
+          "nodeIndex": "Collection",
+          "nodeLineageTag": "b2d626f4-9e40-42ee-8492-9b0c1067d127",
+          "size": {
+            "height": 300,
+            "width": 234
+          },
+          "zIndex": 2
+        },
+        {
+          "location": {
+            "x": 369.98828991961727,
+            "y": 370.32639630805721
+          },
+          "nodeIndex": "SWU-DB Sets",
+          "nodeLineageTag": "25712e69-f991-422d-8770-d04cdf07ba34",
+          "size": {
+            "height": 300,
+            "width": 234
+          },
+          "zIndex": 3
+        },
+        {
+          "location": {
+            "x": 719.54360970063533,
+            "y": 459.35956415243027
+          },
+          "nodeIndex": "SWU-DB Arenas",
+          "nodeLineageTag": "81213ae0-e400-4651-9b4b-e131163aebd8",
+          "size": {
+            "height": 128,
+            "width": 234
+          },
+          "zIndex": 0
+        },
+        {
+          "location": {
+            "x": 488.01043649174358,
+            "y": 696.61185493714515
+          },
+          "nodeIndex": "SWU-DB Aspects",
+          "nodeLineageTag": "0af9a256-3802-4740-8934-78704e17385d",
+          "size": {
+            "height": 128,
+            "width": 234
+          },
+          "zIndex": 0
+        },
+        {
+          "location": {
+            "x": 0,
+            "y": 434.38563880667084
+          },
+          "nodeIndex": "SWU-DB Keywords",
+          "nodeLineageTag": "9d5d6953-3cb7-4bd5-8342-64b91995ec9b",
+          "size": {
+            "height": 128,
+            "width": 234
+          },
+          "zIndex": 0
+        },
+        {
+          "location": {
+            "x": 1920.2866386360622,
+            "y": 258.67623548114886
+          },
+          "nodeIndex": "SWU-DB Traits",
+          "nodeLineageTag": "3a7d5575-422a-4e52-9156-e382af6aaf41",
+          "size": {
+            "height": 128,
+            "width": 234
+          },
+          "zIndex": 0
+        }
+      ],
+      "name": "All tables",
+      "zoomValue": 112.11693641406018,
+      "pinKeyFieldsToTop": false,
+      "showExtraHeaderInfo": false,
+      "hideKeyFieldsWhenCollapsed": false,
+      "tablesLocked": false
+    }
+  ],
+  "selectedDiagram": "All tables",
+  "defaultDiagram": "All tables"
+}

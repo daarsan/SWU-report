@@ -1,0 +1,11 @@
+{
+  "$schema": "https://developer.microsoft.com/json-schemas/fabric/gitIntegration/platformProperties/2.0.0/schema.json",
+  "metadata": {
+    "type": "SemanticModel",
+    "displayName": "Star Wars Unlimited"
+  },
+  "config": {
+    "version": "2.0",
+    "logicalId": "f10d46e8-45e0-4d99-85ea-8306a32e36d4"
+  }
+}
