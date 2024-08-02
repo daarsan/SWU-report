@@ -4,7 +4,7 @@
     "annotations": [
       {
         "name": "PBI_QueryOrder",
-        "value": "[\"Products\",\"CardtraderApiUrl\",\"JWT-Token\",\"GetCardtraderResponse\",\"Blueprints\",\"Market\",\"Expansions\",\"Games\",\"GetCollectionTab\",\"CardtraderUrl\",\"GetCardtraderBlueprints\",\"GetCardtraderMarket\",\"Categories\",\"Collection\",\"SWU-DB Dataset\",\"GetSWU-DBSet\",\"SWU-DB Sets\",\"SWU-DB Aspects\",\"SWU-DB Traits\",\"SWU-DB Arenas\",\"SWU-DB Keywords\",\"SWU Tracker\"]"
+        "value": "[\"GetCollectionTab\",\"Collection\",\"SWU-DB Dataset\",\"GetSWU-DBSet\",\"SWU-DB Sets\",\"SWU-DB Aspects\",\"SWU-DB Traits\",\"SWU-DB Arenas\",\"SWU-DB Keywords\",\"SWU Tracker\",\"Expansions\",\"Aspects\"]"
       },
       {
         "name": "__PBI_TimeIntelligenceEnabled",
@@ -39,263 +39,6 @@
     },
     "defaultPowerBIDataSourceVersion": "powerBI_V3",
     "expressions": [
-      {
-        "name": "JWT-Token",
-        "annotations": [
-          {
-            "name": "PBI_NavigationStepName",
-            "value": "Navigation"
-          },
-          {
-            "name": "PBI_ResultType",
-            "value": "Text"
-          }
-        ],
-        "expression": "\"eyJhbGciOiJSUzI1NiJ9.eyJpc3MiOiJjYXJkdHJhZGVyLXByb2R1Y3Rpb24iLCJzdWIiOiJhcHA6MTEyNjMiLCJhdWQiOiJhcHA6MTEyNjMiLCJleHAiOjQ4Nzc3NjYxNTIsImp0aSI6Ijg0ZmM0NjFkLTI4YWUtNDFjOC05NjYzLTNiYTMyY2RmZTgwYSIsImlhdCI6MTcyMjA5MjU1MiwibmFtZSI6IlNlbnlvcnBhdG8gQXBwIDIwMjQwNzI2MjIzNzQ2In0.YLd_aDbyaMoNJSy-WB4wXCopXbzSKYPDqDGp3TfbfqCB2lAIWkIIO1j13lnUWsQH2WVpmcyKpkbOI0XAEgxaJIKd2kbU2ems9u9AyxrFm63tt49XbP7tbQ6rao8XKJgJUObWg1pe5OCIDJfeWRR0fOH5rtaMdzG_VkuPxe_nvULzCl3SouMoC2e_IK1KdlT3ElrP1h4qkE6gdjuJfMw-q6bi7z1ETH0E58aKSkMraDK6M0TLgOsVCVANYAOfh38YSK8YRlCzQMGkW6bCVkqMhKzmmNOH2NQB-v2OIevfkbHByTNVaGpk3xMC9ImL_jW04yE3uN6I1J_WjDp9SOXePQ\" meta [IsParameterQuery=true, Type=\"Text\", IsParameterQueryRequired=true]",
-        "kind": "m",
-        "lineageTag": "43026cae-c51d-4109-ba44-0a14ac7b21f0",
-        "queryGroup": "Cardtrade\\GetCardtraderResponse"
-      },
-      {
-        "name": "CardtraderApiUrl",
-        "annotations": [
-          {
-            "name": "PBI_NavigationStepName",
-            "value": "Navigation"
-          },
-          {
-            "name": "PBI_ResultType",
-            "value": "Text"
-          }
-        ],
-        "expression": "\"https://api.cardtrader.com\" meta [IsParameterQuery=true, Type=\"Text\", IsParameterQueryRequired=true]",
-        "kind": "m",
-        "lineageTag": "ce6a3513-d218-4c11-bc13-6e39579ec82a",
-        "queryGroup": "Cardtrade\\GetCardtraderResponse"
-      },
-      {
-        "name": "GetCardtraderResponse",
-        "annotations": [
-          {
-            "name": "PBI_NavigationStepName",
-            "value": "Navigation"
-          },
-          {
-            "name": "PBI_ResultType",
-            "value": "Function"
-          }
-        ],
-        "expression": [
-          "let",
-          "    Source = (Endpoint as text) => let",
-          "        accesstoken = \"Bearer \" & #\"JWT-Token\",",
-          "        url=Text.Combine({CardtraderApiUrl, Endpoint}),    ",
-          "        Source = Json.Document( Web.Contents(url, [ Headers = [#\"Authorization\" = accesstoken] ]))",
-          "    in",
-          "        Source",
-          "in",
-          "    Source"
-        ],
-        "kind": "m",
-        "lineageTag": "ddd79f57-f978-4996-b561-ae020e59adbd",
-        "queryGroup": "Cardtrade\\GetCardtraderResponse"
-      },
-      {
-        "name": "CardtraderUrl",
-        "annotations": [
-          {
-            "name": "PBI_NavigationStepName",
-            "value": "Navigation"
-          },
-          {
-            "name": "PBI_ResultType",
-            "value": "Text"
-          }
-        ],
-        "expression": "\"https://cardtrader.com\" meta [IsParameterQuery=true, Type=\"Text\", IsParameterQueryRequired=true]",
-        "kind": "m",
-        "lineageTag": "acef051f-d4d9-4b8a-9063-797b16c9cb38",
-        "queryGroup": "Cardtrade\\GetCardtraderBlueprints"
-      },
-      {
-        "name": "GetCardtraderBlueprints",
-        "annotations": [
-          {
-            "name": "PBI_NavigationStepName",
-            "value": "Navigation"
-          },
-          {
-            "name": "PBI_ResultType",
-            "value": "Function"
-          }
-        ],
-        "expression": [
-          "let",
-          "    Source = (ExpansionId as number) => let",
-          "        Endpoint = Text.Combine({\"/api/v2/blueprints?expansion_id=\", Text.From(ExpansionId), \"&limit=100&page=\"}, \"\"),",
-          "        Source = List.Generate(",
-          "            () => [Result = try GetCardtraderResponse(Endpoint & Number.ToText(1)) otherwise null, pagenumber=1],",
-          "            each List.IsEmpty([Result]) = false,",
-          "            each [Result = try GetCardtraderResponse(Endpoint & Number.ToText(pagenumber)) otherwise null, pagenumber = [pagenumber] + 1],",
-          "            each [Result]",
-          "        ),",
-          "        #\"Converted to Table1\" = Table.FromList(Source, Splitter.SplitByNothing(), null, null, ExtraValues.Error),",
-          "        #\"Expanded Column1\" = Table.ExpandListColumn(#\"Converted to Table1\", \"Column1\"),",
-          "        #\"Expanded Column2\" = Table.ExpandRecordColumn(#\"Expanded Column1\", \"Column1\", {\"id\", \"meta_name\", \"version\", \"game_id\", \"category_id\", \"expansion_id\", \"slug\", \"name\", \"translated_name\", \"image\", \"back_image\"}, {\"blueprint_id\", \"meta_name\", \"version\", \"game_id\", \"category_id\", \"expansion_id\", \"slug\", \"name\", \"translated_name\", \"image\", \"back_image\"}),",
-          "        #\"Expanded image\" = Table.ExpandRecordColumn(#\"Expanded Column2\", \"image\", {\"url\"}, {\"image_url\"}),",
-          "        #\"Expanded back_image\" = Table.ExpandRecordColumn(#\"Expanded image\", \"back_image\", {\"url\"}, {\"back_url\"}),",
-          "        #\"Transformed back_image\" = Table.TransformColumns(#\"Expanded back_image\", {{\"back_url\", each if Text.StartsWith(_,\"/\") then _ else \"/\" & _, type text}}),",
-          "        #\"Added Prefix\" = Table.TransformColumns(#\"Transformed back_image\", {{\"image_url\", each CardtraderUrl & _, type text}}),",
-          "        #\"Added Prefix1\" = Table.TransformColumns(#\"Added Prefix\", {{\"back_url\", each CardtraderUrl & _, type text}})",
-          "    in",
-          "        #\"Added Prefix1\"",
-          "in",
-          "    Source"
-        ],
-        "kind": "m",
-        "lineageTag": "2b0a4192-03e6-4d42-af1c-f286a412c744",
-        "queryGroup": "Cardtrade\\GetCardtraderBlueprints"
-      },
-      {
-        "name": "GetCardtraderMarket",
-        "annotations": [
-          {
-            "name": "PBI_NavigationStepName",
-            "value": "Navigation"
-          },
-          {
-            "name": "PBI_ResultType",
-            "value": "Function"
-          }
-        ],
-        "expression": [
-          "let",
-          "    Source = (ExpansionId as number) => let",
-          "        Endpoint=Text.Combine({\"/api/v2/marketplace/products?expansion_id=\", Text.From(ExpansionId), \"&language=en\"}, \"\"),",
-          "        Source1 =GetCardtraderResponse(Endpoint),",
-          "        #\"Converted to Table\" = Record.ToTable(Source1),",
-          "        #\"Expanded Value\" = Table.ExpandListColumn(#\"Converted to Table\", \"Value\"),",
-          "        #\"Expanded Value1\" = Table.ExpandRecordColumn(#\"Expanded Value\", \"Value\", {\"id\", \"blueprint_id\", \"name_en\", \"price_cents\", \"price_currency\", \"properties_hash\"}, {\"market_id\", \"blueprint_id\", \"name_en\", \"price_cents\", \"price_currency\", \"properties_hash\"}),",
-          "    #\"Expanded properties_hash\" = Table.ExpandRecordColumn(#\"Expanded Value1\", \"properties_hash\", {\"starwars_language\", \"starwars_rarity\", \"collector_number\", \"starwars_foil\"}, {\"starwars_language\", \"starwars_rarity\", \"collector_number\", \"starwars_foil\"}),",
-          "    #\"Filtered Rows\" = Table.SelectRows(#\"Expanded properties_hash\", each ([starwars_language] = \"en\") and ([starwars_rarity] <> null)),",
-          "        #\"Changed Type\" = Table.TransformColumnTypes(#\"Filtered Rows\",{{\"Name\", Int64.Type}, {\"market_id\", Int64.Type}, {\"blueprint_id\", Int64.Type}, {\"price_cents\", Int64.Type}, {\"price_currency\", type text}, {\"starwars_language\", type text}, {\"starwars_rarity\", type text}, {\"collector_number\", type text}, {\"starwars_foil\", type logical}}),",
-          "        #\"Added Custom\" = Table.AddColumn(#\"Changed Type\", \"price\", each [price_cents]/100),",
-          "        #\"Changed Type1\" = Table.TransformColumnTypes(#\"Added Custom\",{{\"price\", Currency.Type}}),",
-          "        #\"Removed Columns\" = Table.RemoveColumns(#\"Changed Type1\",{\"price_cents\"}),",
-          "    #\"Inserted Lowercased Text\" = Table.AddColumn(#\"Removed Columns\", \"number\", each Text.PadStart([collector_number], 3, \"0\"), type text),",
-          "    #\"Grouped Rows\" = Table.Group(#\"Inserted Lowercased Text\", {\"Name\", \"blueprint_id\", \"starwars_rarity\", \"number\", \"starwars_foil\"}, {{\"cardmarket_price\", each List.Min([price]), type nullable number}})",
-          "    in",
-          "        #\"Grouped Rows\"",
-          "in",
-          "    Source"
-        ],
-        "kind": "m",
-        "lineageTag": "cd6a257d-da09-4cd8-a13c-0b133a7725a0",
-        "queryGroup": "Cardtrade\\GetCardtraderMarket"
-      },
-      {
-        "name": "Market",
-        "annotations": [
-          {
-            "name": "PBI_NavigationStepName",
-            "value": "Navigation"
-          },
-          {
-            "name": "PBI_ResultType",
-            "value": "Table"
-          }
-        ],
-        "expression": [
-          "let",
-          "    #\"Result\" = Table.Combine({GetCardtraderMarket(3607),GetCardtraderMarket(3770), GetCardtraderMarket(3636), GetCardtraderMarket(3790)})",
-          "in",
-          "    Result"
-        ],
-        "kind": "m",
-        "lineageTag": "974c58f0-94db-44e4-bb39-ca0778feba7a",
-        "queryGroup": "Cardtrade"
-      },
-      {
-        "name": "Products",
-        "annotations": [
-          {
-            "name": "PBI_NavigationStepName",
-            "value": "Navigation"
-          },
-          {
-            "name": "PBI_ResultType",
-            "value": "Table"
-          }
-        ],
-        "expression": [
-          "let",
-          "    Source = Json.Document(Web.Contents(\"https://downloads.s3.cardmarket.com/productCatalog/productList/products_singles_21.json\")),",
-          "    #\"Converted to Table\" = Table.FromRecords({Source}),",
-          "    #\"Removed Columns\" = Table.RemoveColumns(#\"Converted to Table\",{\"version\", \"createdAt\"}),",
-          "    #\"Expanded products\" = Table.ExpandListColumn(#\"Removed Columns\", \"products\"),",
-          "    #\"Expanded products1\" = Table.ExpandRecordColumn(#\"Expanded products\", \"products\", {\"idProduct\", \"name\", \"idCategory\", \"categoryName\", \"idExpansion\", \"idMetacard\", \"dateAdded\"}, {\"product_id\", \"name\", \"category_id\", \"category_name\", \"expansion_id\", \"metacard_id\", \"date_added\"}),",
-          "    #\"Changed Type\" = Table.TransformColumnTypes(#\"Expanded products1\",{{\"product_id\", Int64.Type}, {\"name\", type text}, {\"category_id\", Int64.Type}, {\"category_name\", type text}, {\"expansion_id\", Int64.Type}, {\"metacard_id\", Int64.Type}, {\"date_added\", type datetime}})",
-          "in",
-          "    #\"Changed Type\""
-        ],
-        "kind": "m",
-        "lineageTag": "17ba5980-561d-4d89-8bdc-88d882b898e6",
-        "queryGroup": "Cardmarket"
-      },
-      {
-        "name": "Games",
-        "annotations": [
-          {
-            "name": "PBI_NavigationStepName",
-            "value": "Navigation"
-          },
-          {
-            "name": "PBI_ResultType",
-            "value": "Table"
-          }
-        ],
-        "expression": [
-          "let",
-          "    Endpoint = \"/api/v2/games\",",
-          "    Source=GetCardtraderResponse(Endpoint),",
-          "    #\"Converted to Table\" = Record.ToTable(Source),",
-          "    #\"Removed Columns\" = Table.RemoveColumns(#\"Converted to Table\",{\"Name\"}),",
-          "    #\"Expanded Value\" = Table.ExpandListColumn(#\"Removed Columns\", \"Value\"),",
-          "    #\"Expanded Value1\" = Table.ExpandRecordColumn(#\"Expanded Value\", \"Value\", {\"id\", \"display_name\", \"name\"}, {\"game_id\", \"display_name\", \"name\"}),",
-          "    #\"Changed Type\" = Table.TransformColumnTypes(#\"Expanded Value1\",{{\"game_id\", type number}, {\"display_name\", type text}, {\"name\", type text}})",
-          "in",
-          "    #\"Changed Type\""
-        ],
-        "kind": "m",
-        "lineageTag": "dad1fe9b-03df-42b5-81a9-fd52ab4d9911",
-        "queryGroup": "Cardtrade"
-      },
-      {
-        "name": "Categories",
-        "annotations": [
-          {
-            "name": "PBI_NavigationStepName",
-            "value": "Navigation"
-          },
-          {
-            "name": "PBI_ResultType",
-            "value": "Table"
-          }
-        ],
-        "expression": [
-          "let",
-          "    Endpoint = \"/api/v2/categories\",",
-          "    Source=GetCardtraderResponse(Endpoint),",
-          "    #\"Converted to Table\" = Table.FromList(Source, Splitter.SplitByNothing(), null, null, ExtraValues.Error),",
-          "    #\"Expanded Column1\" = Table.ExpandRecordColumn(#\"Converted to Table\", \"Column1\", {\"id\", \"name\", \"game_id\"}, {\"category_id\", \"name\", \"game_id\"}),",
-          "    #\"Filtered Rows\" = Table.SelectRows(#\"Expanded Column1\", each ([game_id] = 20))",
-          "in",
-          "    #\"Filtered Rows\""
-        ],
-        "kind": "m",
-        "lineageTag": "4676e3c5-de37-4700-998a-f22c81087713",
-        "queryGroup": "Cardtrade"
-      },
       {
         "name": "GetSWU-DBSet",
         "annotations": [
@@ -489,46 +232,10 @@
         "annotations": [
           {
             "name": "PBI_QueryGroupOrder",
-            "value": "0"
+            "value": "5"
           }
         ],
-        "folder": "Cardmarket"
-      },
-      {
-        "annotations": [
-          {
-            "name": "PBI_QueryGroupOrder",
-            "value": "1"
-          }
-        ],
-        "folder": "Cardtrade"
-      },
-      {
-        "annotations": [
-          {
-            "name": "PBI_QueryGroupOrder",
-            "value": "0"
-          }
-        ],
-        "folder": "Cardtrade\\GetCardtraderResponse"
-      },
-      {
-        "annotations": [
-          {
-            "name": "PBI_QueryGroupOrder",
-            "value": "1"
-          }
-        ],
-        "folder": "Cardtrade\\GetCardtraderBlueprints"
-      },
-      {
-        "annotations": [
-          {
-            "name": "PBI_QueryGroupOrder",
-            "value": "2"
-          }
-        ],
-        "folder": "Cardtrade\\GetCardtraderMarket"
+        "folder": "SWU-DB"
       },
       {
         "annotations": [
@@ -537,17 +244,10 @@
             "value": "5"
           }
         ],
-        "folder": "SWU-DB"
+        "folder": "Master"
       }
     ],
     "relationships": [
-      {
-        "name": "c8529158-8843-b511-81ec-2bcd665abb63",
-        "fromColumn": "Expansion ID",
-        "fromTable": "Blueprints",
-        "toColumn": "Expansion ID",
-        "toTable": "Expansions"
-      },
       {
         "name": "6dc0ed6b-057a-794b-727d-7890971060da",
         "fromColumn": "Card Id",
@@ -571,18 +271,40 @@
         "toTable": "SWU-DB Sets"
       },
       {
-        "name": "55b760ea-358a-d6cc-be48-10b8e4d4bc1d",
+        "name": "AutoDetected_a815b09a-6852-44fb-a8ca-973c6b48205a",
+        "crossFilteringBehavior": "bothDirections",
+        "fromCardinality": "one",
+        "fromColumn": "Card Id",
+        "fromTable": "Collection",
+        "toColumn": "Card Id",
+        "toTable": "SWU-DB Sets"
+      },
+      {
+        "name": "9673d0b9-b4fe-43e4-8c7c-56bbd0f589b2",
+        "fromColumn": "Release Date",
+        "fromTable": "Expansions",
+        "joinOnDateBehavior": "datePartOnly",
+        "toColumn": "Date",
+        "toTable": "LocalDateTable_3914b327-f24d-4d2f-9199-0b435a9a3cca"
+      },
+      {
+        "name": "13f049d4-4900-7580-1848-aa053a96f22e",
+        "fromColumn": "Aspects",
+        "fromTable": "SWU-DB Aspects",
+        "toColumn": "Aspect",
+        "toTable": "Aspects"
+      },
+      {
+        "name": "04ee78ea-30a3-1941-5b1f-5e350da3b36d",
         "fromColumn": "Expansion Code",
         "fromTable": "SWU-DB Sets",
         "toColumn": "Code",
         "toTable": "Expansions"
       },
       {
-        "name": "AutoDetected_a815b09a-6852-44fb-a8ca-973c6b48205a",
-        "crossFilteringBehavior": "bothDirections",
-        "fromCardinality": "one",
+        "name": "f8d5b0d4-d101-c095-6aa7-492cc7bf12c5",
         "fromColumn": "Card Id",
-        "fromTable": "Collection",
+        "fromTable": "SWU-DB Traits",
         "toColumn": "Card Id",
         "toTable": "SWU-DB Sets"
       }
@@ -790,338 +512,6 @@
             "source": {
               "expression": "Calendar(Date(2015,1,1), Date(2015,1,1))",
               "type": "calculated"
-            }
-          }
-        ]
-      },
-      {
-        "name": "Expansions",
-        "annotations": [
-          {
-            "name": "PBI_NavigationStepName",
-            "value": "Navigation"
-          },
-          {
-            "name": "PBI_ResultType",
-            "value": "Table"
-          }
-        ],
-        "columns": [
-          {
-            "name": "Expansion ID",
-            "annotations": [
-              {
-                "name": "SummarizationSetBy",
-                "value": "Automatic"
-              }
-            ],
-            "dataType": "int64",
-            "formatString": "0",
-            "lineageTag": "8fdf9001-1a10-4a91-bb7e-c1b8155dbfac",
-            "sourceColumn": "Expansion ID",
-            "summarizeBy": "none"
-          },
-          {
-            "name": "Game ID",
-            "annotations": [
-              {
-                "name": "SummarizationSetBy",
-                "value": "Automatic"
-              }
-            ],
-            "dataType": "int64",
-            "formatString": "0",
-            "lineageTag": "5250f41f-b6d6-4db6-bf22-9ebbbe657869",
-            "sourceColumn": "Game ID",
-            "summarizeBy": "count"
-          },
-          {
-            "name": "Code",
-            "annotations": [
-              {
-                "name": "SummarizationSetBy",
-                "value": "Automatic"
-              }
-            ],
-            "dataType": "string",
-            "lineageTag": "02e33df6-5205-4090-8151-2c9d4fc02ccb",
-            "sourceColumn": "Code",
-            "summarizeBy": "none"
-          },
-          {
-            "name": "Name",
-            "annotations": [
-              {
-                "name": "SummarizationSetBy",
-                "value": "Automatic"
-              }
-            ],
-            "dataType": "string",
-            "lineageTag": "5f83db99-3413-4318-9c25-67de65b27b9d",
-            "sourceColumn": "Name",
-            "summarizeBy": "none"
-          }
-        ],
-        "lineageTag": "a9092925-6528-4dcd-8530-1d6bbf4b20d7",
-        "partitions": [
-          {
-            "name": "Expansions",
-            "mode": "import",
-            "queryGroup": "Cardtrade",
-            "source": {
-              "expression": [
-                "let",
-                "    Endpoint=\"/api/v2/expansions\",",
-                "    Source =GetCardtraderResponse(Endpoint),",
-                "        #\"Converted to Table\" = Table.FromList(Source, Splitter.SplitByNothing(), null, null, ExtraValues.Error),",
-                "    #\"Expanded Column1\" = Table.ExpandRecordColumn(#\"Converted to Table\", \"Column1\", {\"id\", \"game_id\", \"code\", \"name\"}, {\"expansion_id\", \"game_id\", \"code\", \"name\"}),",
-                "    #\"Filtered Rows\" = Table.SelectRows(#\"Expanded Column1\", each ([game_id] = 20)),",
-                "    #\"Changed Type\" = Table.TransformColumnTypes(#\"Filtered Rows\",{{\"expansion_id\", Int64.Type}, {\"game_id\", Int64.Type}, {\"name\", type text}, {\"code\", type text}}),",
-                "    #\"Renamed Columns\" = Table.RenameColumns(#\"Changed Type\",{{\"expansion_id\", \"Expansion ID\"}, {\"game_id\", \"Game ID\"}, {\"code\", \"Code\"}, {\"name\", \"Name\"}}),",
-                "    #\"Uppercased Text\" = Table.TransformColumns(#\"Renamed Columns\",{{\"Code\", Text.Upper, type text}})",
-                "in",
-                "    #\"Uppercased Text\""
-              ],
-              "type": "m"
-            }
-          }
-        ]
-      },
-      {
-        "name": "Blueprints",
-        "annotations": [
-          {
-            "name": "PBI_ResultType",
-            "value": "Table"
-          },
-          {
-            "name": "PBI_NavigationStepName",
-            "value": "Navigation"
-          }
-        ],
-        "columns": [
-          {
-            "name": "Meta Name",
-            "annotations": [
-              {
-                "name": "SummarizationSetBy",
-                "value": "Automatic"
-              }
-            ],
-            "dataType": "string",
-            "lineageTag": "153b7cb7-894a-4f5a-bd2d-b308f08da38e",
-            "sourceColumn": "Meta Name",
-            "summarizeBy": "none"
-          },
-          {
-            "name": "Version",
-            "annotations": [
-              {
-                "name": "SummarizationSetBy",
-                "value": "Automatic"
-              }
-            ],
-            "dataType": "string",
-            "lineageTag": "9e1e0001-deaf-4b2f-9d88-5a31baa18115",
-            "sourceColumn": "Version",
-            "summarizeBy": "none"
-          },
-          {
-            "name": "Game ID",
-            "annotations": [
-              {
-                "name": "SummarizationSetBy",
-                "value": "Automatic"
-              }
-            ],
-            "dataType": "string",
-            "lineageTag": "662118fc-a1ca-4dc7-a7d4-637cad3401ee",
-            "sourceColumn": "Game ID",
-            "summarizeBy": "none"
-          },
-          {
-            "name": "Expansion ID",
-            "annotations": [
-              {
-                "name": "SummarizationSetBy",
-                "value": "Automatic"
-              }
-            ],
-            "dataType": "string",
-            "lineageTag": "309aa1fd-ef28-46aa-88ea-4901b2edf1da",
-            "sourceColumn": "Expansion ID",
-            "summarizeBy": "none"
-          },
-          {
-            "name": "Slug",
-            "annotations": [
-              {
-                "name": "SummarizationSetBy",
-                "value": "Automatic"
-              }
-            ],
-            "dataType": "string",
-            "lineageTag": "3000ffd6-d5a0-40fa-bf2c-a5669be0e29e",
-            "sourceColumn": "Slug",
-            "summarizeBy": "none"
-          },
-          {
-            "name": "Name",
-            "annotations": [
-              {
-                "name": "SummarizationSetBy",
-                "value": "Automatic"
-              }
-            ],
-            "dataType": "string",
-            "lineageTag": "b8787710-d949-4c20-889a-b7dd8b785a6f",
-            "sourceColumn": "Name",
-            "summarizeBy": "none"
-          },
-          {
-            "name": "Front Image",
-            "annotations": [
-              {
-                "name": "SummarizationSetBy",
-                "value": "Automatic"
-              }
-            ],
-            "dataCategory": "ImageUrl",
-            "dataType": "string",
-            "lineageTag": "de39fc17-56be-4583-a5a3-a95de6997be8",
-            "sourceColumn": "Front Image",
-            "summarizeBy": "none"
-          },
-          {
-            "name": "Reverse Image",
-            "annotations": [
-              {
-                "name": "SummarizationSetBy",
-                "value": "Automatic"
-              }
-            ],
-            "dataCategory": "ImageUrl",
-            "dataType": "string",
-            "lineageTag": "c0a40ebc-80bc-463c-b83a-d4e9fa06bc60",
-            "sourceColumn": "Reverse Image",
-            "summarizeBy": "none"
-          },
-          {
-            "name": "Blueprint ID",
-            "annotations": [
-              {
-                "name": "SummarizationSetBy",
-                "value": "Automatic"
-              }
-            ],
-            "dataType": "string",
-            "lineageTag": "3ffb21ea-ce24-4607-88dc-a08dfe3674a2",
-            "sourceColumn": "Blueprint ID",
-            "summarizeBy": "none"
-          },
-          {
-            "name": "Market Name",
-            "annotations": [
-              {
-                "name": "SummarizationSetBy",
-                "value": "Automatic"
-              }
-            ],
-            "dataType": "int64",
-            "formatString": "0",
-            "lineageTag": "d0edfbf2-4b2f-464b-a575-08887180e2ae",
-            "sourceColumn": "Market Name",
-            "summarizeBy": "sum"
-          },
-          {
-            "name": "Rarity",
-            "annotations": [
-              {
-                "name": "SummarizationSetBy",
-                "value": "Automatic"
-              }
-            ],
-            "dataType": "string",
-            "lineageTag": "a5527c56-b5f9-4920-8847-78b334ff61da",
-            "sourceColumn": "Rarity",
-            "summarizeBy": "none"
-          },
-          {
-            "name": "Card Number",
-            "annotations": [
-              {
-                "name": "SummarizationSetBy",
-                "value": "Automatic"
-              }
-            ],
-            "dataType": "string",
-            "lineageTag": "74cf689f-08bd-4aa2-84c6-17a9464f056f",
-            "sourceColumn": "Card Number",
-            "summarizeBy": "none"
-          },
-          {
-            "name": "Is Foil",
-            "annotations": [
-              {
-                "name": "SummarizationSetBy",
-                "value": "Automatic"
-              }
-            ],
-            "dataType": "boolean",
-            "formatString": "\"TRUE\";\"TRUE\";\"FALSE\"",
-            "lineageTag": "29c262c1-8fcc-42f2-93a2-d0c1e39d1ae5",
-            "sourceColumn": "Is Foil",
-            "summarizeBy": "none"
-          },
-          {
-            "name": "Cardmarket Price",
-            "annotations": [
-              {
-                "name": "SummarizationSetBy",
-                "value": "Automatic"
-              }
-            ],
-            "dataType": "double",
-            "formatString": "\"€\"\\ #,0.00;-\"€\"\\ #,0.00;\"€\"\\ #,0.00",
-            "lineageTag": "5bcc48d7-a8b6-4d6a-be13-0a85ab65c17b",
-            "sourceColumn": "Cardmarket Price",
-            "summarizeBy": "sum"
-          }
-        ],
-        "lineageTag": "c8edd94e-3420-401e-93d1-0690cf257018",
-        "measures": [
-          {
-            "name": "Non Foil Price",
-            "expression": "CALCULATE(SUM(Blueprints[Cardmarket Price]),Blueprints[Is Foil]=FALSE())",
-            "formatString": "\"€\"\\ #,0.00;-\"€\"\\ #,0.00;\"€\"\\ #,0.00",
-            "lineageTag": "cc6f03e5-b34c-498b-b946-30b8cf7f4246"
-          },
-          {
-            "name": "Foil Price",
-            "expression": "CALCULATE(sum(Blueprints[Cardmarket Price]),Blueprints[Is Foil]=TRUE())",
-            "formatString": "\"€\"\\ #,0.00;-\"€\"\\ #,0.00;\"€\"\\ #,0.00",
-            "lineageTag": "561051b0-eee0-44c9-9646-9d07e9ae5972"
-          }
-        ],
-        "partitions": [
-          {
-            "name": "Blueprints",
-            "mode": "import",
-            "queryGroup": "Cardtrade",
-            "source": {
-              "expression": [
-                "let",
-                "   CombinedResults=Table.Combine({GetCardtraderBlueprints(3607),GetCardtraderBlueprints(3770), GetCardtraderBlueprints(3636), GetCardtraderBlueprints(3790)}),",
-                "    #\"Merged Queries\" = Table.NestedJoin(CombinedResults, {\"blueprint_id\"}, Market, {\"blueprint_id\"}, \"Market\", JoinKind.LeftOuter),",
-                "    #\"Expanded Market\" = Table.ExpandTableColumn(#\"Merged Queries\", \"Market\", {\"Name\", \"starwars_rarity\", \"number\", \"starwars_foil\", \"cardmarket_price\"}, {\"Name.1\", \"starwars_rarity\", \"number\", \"starwars_foil\", \"cardmarket_price\"}),",
-                "    #\"Replaced Value\" = Table.ReplaceValue(#\"Expanded Market\",null,-0.01,Replacer.ReplaceValue,{\"cardmarket_price\"}),",
-                "    #\"Filtered Rows\" = Table.SelectRows(#\"Replaced Value\", each ([category_id] = 232)),",
-                "    #\"Renamed Columns\" = Table.RenameColumns(#\"Filtered Rows\",{{\"blueprint_id\", \"Blueprint ID\"}, {\"meta_name\", \"Meta Name\"}, {\"version\", \"Version\"}, {\"game_id\", \"Game ID\"}, {\"expansion_id\", \"Expansion ID\"}, {\"slug\", \"Slug\"}, {\"name\", \"Name\"}, {\"image_url\", \"Front Image\"}, {\"back_url\", \"Reverse Image\"}, {\"Name.1\", \"Market Name\"}, {\"starwars_rarity\", \"Rarity\"}, {\"number\", \"Card Number\"}, {\"starwars_foil\", \"Is Foil\"}, {\"cardmarket_price\", \"Cardmarket Price\"}}),",
-                "    #\"Removed Columns\" = Table.RemoveColumns(#\"Renamed Columns\",{\"translated_name\", \"category_id\"})",
-                "in",
-                "    #\"Removed Columns\""
-              ],
-              "type": "m"
             }
           }
         ]
@@ -1914,6 +1304,386 @@
                 "    #\"Expanded Aspects\" = Table.ExpandListColumn(#\"Filtered Rows\", \"Keywords\")",
                 "in",
                 "    #\"Expanded Aspects\""
+              ],
+              "type": "m"
+            }
+          }
+        ]
+      },
+      {
+        "name": "Expansions",
+        "annotations": [
+          {
+            "name": "PBI_NavigationStepName",
+            "value": "Navigation"
+          },
+          {
+            "name": "PBI_ResultType",
+            "value": "Table"
+          }
+        ],
+        "columns": [
+          {
+            "name": "Code",
+            "annotations": [
+              {
+                "name": "SummarizationSetBy",
+                "value": "Automatic"
+              }
+            ],
+            "dataType": "string",
+            "lineageTag": "04c5bded-f8ff-43d7-a2ff-98e24b5e5e56",
+            "sourceColumn": "Code",
+            "summarizeBy": "none"
+          },
+          {
+            "name": "Name",
+            "annotations": [
+              {
+                "name": "SummarizationSetBy",
+                "value": "Automatic"
+              }
+            ],
+            "changedProperties": [
+              {
+                "property": "SortByColumn"
+              }
+            ],
+            "dataType": "string",
+            "lineageTag": "2bbb3570-d56b-469a-a742-2e3e691add15",
+            "sortByColumn": "Release Date",
+            "sourceColumn": "Name",
+            "summarizeBy": "none"
+          },
+          {
+            "name": "Logo",
+            "annotations": [
+              {
+                "name": "SummarizationSetBy",
+                "value": "Automatic"
+              }
+            ],
+            "dataType": "string",
+            "lineageTag": "36b3f1e7-3d29-40b8-98bd-0033b57c491e",
+            "sourceColumn": "Logo",
+            "summarizeBy": "none"
+          },
+          {
+            "name": "Release Date",
+            "annotations": [
+              {
+                "name": "SummarizationSetBy",
+                "value": "Automatic"
+              },
+              {
+                "name": "UnderlyingDateTimeDataType",
+                "value": "Date"
+              }
+            ],
+            "dataType": "dateTime",
+            "formatString": "Long Date",
+            "lineageTag": "0bec3570-2429-454c-a524-287b9c26ce10",
+            "sourceColumn": "Release Date",
+            "summarizeBy": "none",
+            "variations": [
+              {
+                "name": "Variation",
+                "defaultHierarchy": {
+                  "hierarchy": "Date Hierarchy",
+                  "table": "LocalDateTable_3914b327-f24d-4d2f-9199-0b435a9a3cca"
+                },
+                "isDefault": true,
+                "relationship": "9673d0b9-b4fe-43e4-8c7c-56bbd0f589b2"
+              }
+            ]
+          }
+        ],
+        "lineageTag": "62180a3d-dc84-445b-9aae-89c77b34bf9f",
+        "partitions": [
+          {
+            "name": "Expansions",
+            "mode": "import",
+            "queryGroup": "Master",
+            "source": {
+              "expression": [
+                "let",
+                "    Source = Table.FromRows(Json.Document(Binary.Decompress(Binary.FromText(\"tc/BasJAEAbgVwkBb5Kd7kYTC6F4qYIHwRx6sLJMsqNJu8nG3Q3Rt2+s9VZ6K8xhmH8G5tvvQ2dsOA3zDu1nYI7BjgrSujbtOKy879wzY86jHdC6vtV1U3tSUWkaJlu6eFY3eKKX3urse3silhP+Olap2ujXu3ucv63lmlCRlfl2Jzd0lUvrZQyFSsTsiIvoozu99wB8PmQijeHen7NkNj4GgkHKOPA4PExHQqVuhAqVGdwN4SsKVqjxcv1/BfAH5IFIy2IucKGexN+IhAH/QRy+AA==\", BinaryEncoding.Base64), Compression.Deflate)), let _t = ((type nullable text) meta [Serialized.Text = true]) in type table [Code = _t, Name = _t, Logo = _t, #\"Release Date\" = _t]),",
+                "    #\"Changed Type\" = Table.TransformColumnTypes(Source,{{\"Code\", type text}, {\"Name\", type text}, {\"Logo\", type text}, {\"Release Date\", type date}})",
+                "in",
+                "    #\"Changed Type\""
+              ],
+              "type": "m"
+            }
+          }
+        ]
+      },
+      {
+        "name": "LocalDateTable_3914b327-f24d-4d2f-9199-0b435a9a3cca",
+        "annotations": [
+          {
+            "name": "__PBI_LocalDateTable",
+            "value": "true"
+          }
+        ],
+        "columns": [
+          {
+            "name": "Date",
+            "annotations": [
+              {
+                "name": "SummarizationSetBy",
+                "value": "User"
+              }
+            ],
+            "dataCategory": "PaddedDateTableDates",
+            "dataType": "dateTime",
+            "isHidden": true,
+            "isNameInferred": true,
+            "lineageTag": "468ad050-9320-45b0-9046-fc958297b168",
+            "sourceColumn": "[Date]",
+            "summarizeBy": "none",
+            "type": "calculatedTableColumn"
+          },
+          {
+            "name": "Year",
+            "annotations": [
+              {
+                "name": "SummarizationSetBy",
+                "value": "User"
+              },
+              {
+                "name": "TemplateId",
+                "value": "Year"
+              }
+            ],
+            "dataCategory": "Years",
+            "dataType": "int64",
+            "expression": "YEAR([Date])",
+            "isHidden": true,
+            "lineageTag": "49d97da9-98d3-46ad-ae45-8e15e588cc06",
+            "summarizeBy": "none",
+            "type": "calculated"
+          },
+          {
+            "name": "MonthNo",
+            "annotations": [
+              {
+                "name": "SummarizationSetBy",
+                "value": "User"
+              },
+              {
+                "name": "TemplateId",
+                "value": "MonthNumber"
+              }
+            ],
+            "dataCategory": "MonthOfYear",
+            "dataType": "int64",
+            "expression": "MONTH([Date])",
+            "isHidden": true,
+            "lineageTag": "1cd05409-a69e-483f-988e-df4c11b22e23",
+            "summarizeBy": "none",
+            "type": "calculated"
+          },
+          {
+            "name": "Month",
+            "annotations": [
+              {
+                "name": "SummarizationSetBy",
+                "value": "User"
+              },
+              {
+                "name": "TemplateId",
+                "value": "Month"
+              }
+            ],
+            "dataCategory": "Months",
+            "dataType": "string",
+            "expression": "FORMAT([Date], \"MMMM\")",
+            "isHidden": true,
+            "lineageTag": "855d4717-5dbf-4235-92cc-1fdf76c67f57",
+            "sortByColumn": "MonthNo",
+            "summarizeBy": "none",
+            "type": "calculated"
+          },
+          {
+            "name": "QuarterNo",
+            "annotations": [
+              {
+                "name": "SummarizationSetBy",
+                "value": "User"
+              },
+              {
+                "name": "TemplateId",
+                "value": "QuarterNumber"
+              }
+            ],
+            "dataCategory": "QuarterOfYear",
+            "dataType": "int64",
+            "expression": "INT(([MonthNo] + 2) / 3)",
+            "isHidden": true,
+            "lineageTag": "d24bad08-29a0-45a8-a1e8-89b27a2eef60",
+            "summarizeBy": "none",
+            "type": "calculated"
+          },
+          {
+            "name": "Quarter",
+            "annotations": [
+              {
+                "name": "SummarizationSetBy",
+                "value": "User"
+              },
+              {
+                "name": "TemplateId",
+                "value": "Quarter"
+              }
+            ],
+            "dataCategory": "Quarters",
+            "dataType": "string",
+            "expression": "\"Qtr \" & [QuarterNo]",
+            "isHidden": true,
+            "lineageTag": "d1fc906a-40aa-4924-aebc-a1fe3db61c3a",
+            "sortByColumn": "QuarterNo",
+            "summarizeBy": "none",
+            "type": "calculated"
+          },
+          {
+            "name": "Day",
+            "annotations": [
+              {
+                "name": "SummarizationSetBy",
+                "value": "User"
+              },
+              {
+                "name": "TemplateId",
+                "value": "Day"
+              }
+            ],
+            "dataCategory": "DayOfMonth",
+            "dataType": "int64",
+            "expression": "DAY([Date])",
+            "isHidden": true,
+            "lineageTag": "e38435ab-e438-4944-a745-4cc0402051c2",
+            "summarizeBy": "none",
+            "type": "calculated"
+          }
+        ],
+        "hierarchies": [
+          {
+            "name": "Date Hierarchy",
+            "annotations": [
+              {
+                "name": "TemplateId",
+                "value": "DateHierarchy"
+              }
+            ],
+            "levels": [
+              {
+                "name": "Year",
+                "column": "Year",
+                "lineageTag": "f530ff8f-6fbb-4b6e-96d1-5d03732671ae",
+                "ordinal": 0
+              },
+              {
+                "name": "Quarter",
+                "column": "Quarter",
+                "lineageTag": "0bcae594-bb46-4b92-bd05-0ce9a6ace9df",
+                "ordinal": 1
+              },
+              {
+                "name": "Month",
+                "column": "Month",
+                "lineageTag": "36dc244f-a9c2-4de1-a479-dc38a723d8ad",
+                "ordinal": 2
+              },
+              {
+                "name": "Day",
+                "column": "Day",
+                "lineageTag": "30eaba00-e88a-444b-a304-86c9c4ac9854",
+                "ordinal": 3
+              }
+            ],
+            "lineageTag": "37d44fc5-c6c4-48d4-9d35-0376b0989161"
+          }
+        ],
+        "isHidden": true,
+        "lineageTag": "4f81dd4d-48cc-455e-b329-ddcc72910260",
+        "partitions": [
+          {
+            "name": "LocalDateTable_3914b327-f24d-4d2f-9199-0b435a9a3cca",
+            "mode": "import",
+            "source": {
+              "expression": "Calendar(Date(Year(MIN('Expansions'[Release Date])), 1, 1), Date(Year(MAX('Expansions'[Release Date])), 12, 31))",
+              "type": "calculated"
+            }
+          }
+        ],
+        "showAsVariationsOnly": true
+      },
+      {
+        "name": "Aspects",
+        "annotations": [
+          {
+            "name": "PBI_NavigationStepName",
+            "value": "Navigation"
+          },
+          {
+            "name": "PBI_ResultType",
+            "value": "Table"
+          }
+        ],
+        "columns": [
+          {
+            "name": "Aspect",
+            "annotations": [
+              {
+                "name": "SummarizationSetBy",
+                "value": "Automatic"
+              }
+            ],
+            "dataType": "string",
+            "lineageTag": "70d02fae-cb49-4a35-9eab-4c71b2675620",
+            "sourceColumn": "Aspect",
+            "summarizeBy": "none"
+          },
+          {
+            "name": "Logo",
+            "annotations": [
+              {
+                "name": "SummarizationSetBy",
+                "value": "Automatic"
+              }
+            ],
+            "dataType": "string",
+            "lineageTag": "c255f06c-77c8-4d77-bf34-fe5c8253d905",
+            "sourceColumn": "Logo",
+            "summarizeBy": "none"
+          },
+          {
+            "name": "Description",
+            "annotations": [
+              {
+                "name": "SummarizationSetBy",
+                "value": "Automatic"
+              }
+            ],
+            "dataType": "string",
+            "lineageTag": "b527c00a-d596-4518-b8af-5a4bdf0f78d2",
+            "sourceColumn": "Description",
+            "summarizeBy": "none"
+          }
+        ],
+        "lineageTag": "6e7e2f3c-0e27-43e4-a5b9-d373de4b85e8",
+        "partitions": [
+          {
+            "name": "Aspects",
+            "mode": "import",
+            "queryGroup": "Master",
+            "source": {
+              "expression": [
+                "let",
+                "    Source = Table.FromRows(Json.Document(Binary.Decompress(Binary.FromText(\"rZXbihtHEIZfpRD4TtYakxOGxTgBk8uAjXOxMaa2p2amsj3d4z5oPHd5jbxensR/T7dsjGyBia7UGo3q8NVff9/d7d7ooJadkd1+N6Y0x2c3NzFxWDjE7KxOmqQ7GD/dvHPyId3oxIM8z8HePnr6Uo13EZ8cZzEJh+Mp2mF2w1/5yZOnPy23P/xST+9vf/4RWf6wvFInvbioR7ErLZpGSqMQ36vVtFLyNApb6rgk21OQyR8FX90gwedI2WmK1Ac/0Yxoe2LX0Rx8QhW0+hzonqPUF8TJtBKnxOYhHuj1qJFqvYTTLKEvx96HLZSESMvoyeqD0MxJxaXth5hWKxFlciLDDmG7HITkKG6rvRPurEpMCB4524RctHu7v9v95qcJ9V2Fr6mxLtB9YYxYCZykgggS8WFQemFk2FrKs3dkPQj6vqFE9zEFcQNaqf3U5whBbAN6W2lkzEDdRqNx1FjnVnEimhm9GjmjuTAoYqqYYlhGsVP5mwbyM0oB4Vg1wDQBHkRB955DmahEKWJqJF8MA55E9e4qMPlTuEs8N+HU+ib+oFOGpPpeDZRh1g1qp3Ekn9MnplW3Z1pjQj7Ip9dzvaHVXgL1HNPjmY10e7wmYT3T3j1CPOCIPRjGzwD/++fftlNt0iO6LpSnKPZY/uyXgvSoJvlQ9gFvrWR8TIcm0+ycuuE6Mq2xLmHteN4kUaqImjJWDar0VXz9yRVmv2BBs92TTpN0WmQN+shSuzwRT97buEHFMEKeE7JX/Z8IAVAsMN25B/BnF/j2ZFAqxIJYHb3Pah7sZlOYAybaiJf9gDMgxVJGiThoLo2llC/lDuzZdtsQl/bTUnZqm8PvsDiN01XmMNZYF+bwUoex9SyQ3dbI3zmmssXbBAxU06TXo9XieWVCxWx58E5jGwCevUKd9CcKpSgBVngGusn/q+awUWjJPMUMVCF94euoD4LHi6A1qpXNHmKj2wz+LKXvEwxtZg3SNZNxNcbJtDCwLW/D/0atZXXrla7DGuzCAH5F4bY6Ji4NhIPCN9VfxA9k303/W1fdyZzb3QLnGJAgTIhR7oVFBVo9LSJMBhdFNqm4dNvEA70CF8vbkjT57lHT/xjE248=\", BinaryEncoding.Base64), Compression.Deflate)), let _t = ((type nullable text) meta [Serialized.Text = true]) in type table [Aspect = _t, Logo = _t, Description = _t]),",
+                "    #\"Changed Type\" = Table.TransformColumnTypes(Source,{{\"Aspect\", type text}, {\"Logo\", type text}, {\"Description\", type text}})",
+                "in",
+                "    #\"Changed Type\""
               ],
               "type": "m"
             }

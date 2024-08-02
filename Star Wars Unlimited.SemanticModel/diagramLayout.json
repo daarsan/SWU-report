@@ -4,23 +4,10 @@
     {
       "ordinal": 0,
       "scrollPosition": {
-        "x": 0,
+        "x": 20.514295819730989,
         "y": 0
       },
       "nodes": [
-        {
-          "location": {
-            "x": 0,
-            "y": 1
-          },
-          "nodeIndex": "Blueprints",
-          "nodeLineageTag": "c8edd94e-3420-401e-93d1-0690cf257018",
-          "size": {
-            "height": 300,
-            "width": 234
-          },
-          "zIndex": 1
-        },
         {
           "location": {
             "x": 582,
@@ -101,13 +88,26 @@
         },
         {
           "location": {
-            "x": 1920.2866386360622,
-            "y": 258.67623548114886
+            "x": 1072.065102785446,
+            "y": 388.89741764118037
           },
           "nodeIndex": "SWU-DB Traits",
           "nodeLineageTag": "3a7d5575-422a-4e52-9156-e382af6aaf41",
           "size": {
             "height": 128,
+            "width": 234
+          },
+          "zIndex": 0
+        },
+        {
+          "location": {
+            "x": 112.72039092870659,
+            "y": 699.31977088729036
+          },
+          "nodeIndex": "Aspects",
+          "nodeLineageTag": "6e7e2f3c-0e27-43e4-a5b9-d373de4b85e8",
+          "size": {
+            "height": 152,
             "width": 234
           },
           "zIndex": 0
