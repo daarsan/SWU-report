@@ -200,7 +200,8 @@
           "        Source = GoogleSheets.Contents(#\"SWU Tracker\"),",
           "        #\"SHD\" = Source{[name=ExpansionCode,ItemKind=\"Table\"]}[Data],",
           "        #\"Promoted Headers\" = Table.PromoteHeaders(SHD, [PromoteAllScalars=true]),",
-          "        #\"Changed Type\" = Table.TransformColumnTypes(#\"Promoted Headers\",{{\"Name\", type text}, {\"Card Number\", Int64.Type}, {\"Rarity\", type text}, {\"Is Unique\", type logical}, {\"Normal\", Int64.Type}, {\"Foil\", Int64.Type}}),",
+          "    #\"Removed Other Columns\" = Table.SelectColumns(#\"Promoted Headers\",{\"Card Number\", \"Normal\", \"Foil\"}),",
+          "        #\"Changed Type\" = Table.TransformColumnTypes(#\"Removed Other Columns\",{ {\"Card Number\", Int64.Type},{\"Normal\", Int64.Type}, {\"Foil\", Int64.Type}}),",
           "        #\"Added Custom\" = Table.AddColumn(#\"Changed Type\", \"Card Id\", each ExpansionCode &\"-\" & Text.PadStart(Number.ToText([Card Number]),3,\"0\"))",
           "    in",
           "        #\"Added Custom\"",
@@ -544,19 +545,6 @@
             "summarizeBy": "sum"
           },
           {
-            "name": "Rarity",
-            "annotations": [
-              {
-                "name": "SummarizationSetBy",
-                "value": "Automatic"
-              }
-            ],
-            "dataType": "string",
-            "lineageTag": "b6064b51-7782-40af-bac6-813727bf4aa6",
-            "sourceColumn": "Rarity",
-            "summarizeBy": "none"
-          },
-          {
             "name": "Card Number",
             "annotations": [
               {
@@ -569,33 +557,6 @@
             "lineageTag": "a8adf39e-f4b5-408e-b141-5e241187cb11",
             "sourceColumn": "Card Number",
             "summarizeBy": "sum"
-          },
-          {
-            "name": "Name",
-            "annotations": [
-              {
-                "name": "SummarizationSetBy",
-                "value": "Automatic"
-              }
-            ],
-            "dataType": "string",
-            "lineageTag": "b491b3d1-ce34-4c58-a014-e45a47426ad6",
-            "sourceColumn": "Name",
-            "summarizeBy": "none"
-          },
-          {
-            "name": "Is Unique",
-            "annotations": [
-              {
-                "name": "SummarizationSetBy",
-                "value": "Automatic"
-              }
-            ],
-            "dataType": "boolean",
-            "formatString": "\"TRUE\";\"TRUE\";\"FALSE\"",
-            "lineageTag": "2c19a8b1-e196-45f0-9000-0f0a6c04417b",
-            "sourceColumn": "Is Unique",
-            "summarizeBy": "none"
           },
           {
             "name": "Normal",
@@ -630,14 +591,11 @@
               {
                 "name": "SummarizationSetBy",
                 "value": "Automatic"
-              },
-              {
-                "name": "PBI_FormatHint",
-                "value": "{\"isGeneralNumber\":true}"
               }
             ],
             "dataType": "double",
             "expression": "Collection[Normal] * RELATED('SWU-DB Sets'[Market Price]) + Collection[Foil] * RELATED('SWU-DB Sets'[Foil Price])",
+            "formatString": "#,0.00\\ \"€\";-#,0.00\\ \"€\";#,0.00\\ \"€\"",
             "isDataTypeInferred": true,
             "lineageTag": "4f2c90a7-dea2-42a1-adda-1e83863ee532",
             "summarizeBy": "sum",
@@ -665,14 +623,11 @@
               {
                 "name": "SummarizationSetBy",
                 "value": "Automatic"
-              },
-              {
-                "name": "PBI_FormatHint",
-                "value": "{\"isGeneralNumber\":true}"
               }
             ],
             "dataType": "double",
             "expression": "Collection[Normal] * RELATED('SWU-DB Sets'[Market Price])",
+            "formatString": "#,0.00\\ \"€\";-#,0.00\\ \"€\";#,0.00\\ \"€\"",
             "isDataTypeInferred": true,
             "lineageTag": "9abb2814-aa71-4d3c-8db0-f246622bf2d3",
             "summarizeBy": "sum",
@@ -684,14 +639,11 @@
               {
                 "name": "SummarizationSetBy",
                 "value": "Automatic"
-              },
-              {
-                "name": "PBI_FormatHint",
-                "value": "{\"isGeneralNumber\":true}"
               }
             ],
             "dataType": "double",
             "expression": "Collection[Foil] * RELATED('SWU-DB Sets'[Foil Price])",
+            "formatString": "#,0.00\\ \"€\";-#,0.00\\ \"€\";#,0.00\\ \"€\"",
             "isDataTypeInferred": true,
             "lineageTag": "399b1d0f-cc50-4940-9cf3-932527027e5b",
             "summarizeBy": "sum",
@@ -706,7 +658,7 @@
             "source": {
               "expression": [
                 "let",
-                "    Source = Table.Combine({GetCollectionTab(\"SOR\"), GetCollectionTab(\"SHD\")})",
+                "    Source = Table.Combine({GetCollectionTab(\"sor\"), GetCollectionTab(\"shd\")})",
                 "in",
                 "    Source"
               ],
@@ -976,13 +928,10 @@
               {
                 "name": "SummarizationSetBy",
                 "value": "Automatic"
-              },
-              {
-                "name": "PBI_FormatHint",
-                "value": "{\"isGeneralNumber\":true}"
               }
             ],
             "dataType": "double",
+            "formatString": "#,0.00\\ \"€\";-#,0.00\\ \"€\";#,0.00\\ \"€\"",
             "lineageTag": "3f58031a-23e4-4d94-8cb9-b9a9c5443f9d",
             "sourceColumn": "Market Price",
             "summarizeBy": "sum"
@@ -993,13 +942,10 @@
               {
                 "name": "SummarizationSetBy",
                 "value": "Automatic"
-              },
-              {
-                "name": "PBI_FormatHint",
-                "value": "{\"isGeneralNumber\":true}"
               }
             ],
             "dataType": "double",
+            "formatString": "#,0.00\\ \"€\";-#,0.00\\ \"€\";#,0.00\\ \"€\"",
             "lineageTag": "b023f31b-d5fe-4a16-8ee6-037886b600dc",
             "sourceColumn": "Foil Price",
             "summarizeBy": "sum"
