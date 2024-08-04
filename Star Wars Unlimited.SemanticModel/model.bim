@@ -4,7 +4,7 @@
     "annotations": [
       {
         "name": "PBI_QueryOrder",
-        "value": "[\"GetCollectionTab\",\"Collection\",\"SWU-DB Dataset\",\"GetSWU-DBSet\",\"SWU-DB Sets\",\"SWU-DB Aspects\",\"SWU-DB Traits\",\"SWU-DB Arenas\",\"SWU-DB Keywords\",\"SWU Tracker\",\"Expansions\",\"Aspects\"]"
+        "value": "[\"GetCollectionTab\",\"Collection\",\"SWU-DB Dataset\",\"GetSWU-DBSet\",\"SWU-DB Sets\",\"SWU-DB Aspects\",\"SWU-DB Traits\",\"SWU-DB Arenas\",\"SWU-DB Keywords\",\"SWU Tracker\",\"Expansions\",\"Aspects\",\"Playset Normal\",\"Playset Foil\",\"Playset Hyperspace\",\"Playset Hyperspace Foil\"]"
       },
       {
         "name": "__PBI_TimeIntelligenceEnabled",
@@ -202,9 +202,24 @@
           "        #\"Promoted Headers\" = Table.PromoteHeaders(SHD, [PromoteAllScalars=true]),",
           "    #\"Removed Other Columns\" = Table.SelectColumns(#\"Promoted Headers\",{\"Card Number\", \"Normal\", \"Foil\"}),",
           "        #\"Changed Type\" = Table.TransformColumnTypes(#\"Removed Other Columns\",{ {\"Card Number\", Int64.Type},{\"Normal\", Int64.Type}, {\"Foil\", Int64.Type}}),",
-          "        #\"Added Custom\" = Table.AddColumn(#\"Changed Type\", \"Card Id\", each ExpansionCode &\"-\" & Text.PadStart(Number.ToText([Card Number]),3,\"0\"))",
-          "    in",
-          "        #\"Added Custom\"",
+          "        #\"Added Custom\" = Table.AddColumn(#\"Changed Type\", \"Card Id\", each ExpansionCode &\"-\" & Text.PadStart(Number.ToText([Card Number]),3,\"0\")),",
+          "        ReplaceNormal=Table.ReplaceValue(#\"Added Custom\",null,0,Replacer.ReplaceValue,{\"Normal\"}),",
+          "        ReplaceFoil=Table.ReplaceValue(ReplaceNormal,null,0,Replacer.ReplaceValue,{\"Foil\"}),",
+          "    #\"Merged Queries\" = Table.NestedJoin(ReplaceFoil, {\"Card Id\"}, #\"SWU-DB Sets\", {\"Card Id\"}, \"SWU-DB Sets\", JoinKind.LeftOuter),",
+          "    #\"Expanded SWU-DB Sets\" = Table.ExpandTableColumn(#\"Merged Queries\", \"SWU-DB Sets\", {\"Playset Foil\", \"Playset Normal\", \"Type\", \"Variant Type\", \"Market Price\", \"Foil Price\"}, {\"Expected Playset Foil\", \"Expected Playset Normal\", \"Type\", \"Variant Type\", \"Market Price\", \"Foil Price\"}),",
+          "    #\"Added Custom 2\" = Table.AddColumn(#\"Expanded SWU-DB Sets\", \"Playset Normal\", each List.Min({[Normal], [Expected Playset Normal]}), Int64.Type),",
+          "    #\"Added Custom 3\"= Table.AddColumn(#\"Added Custom 2\", \"Playset Foil\", each List.Min({[Foil], [Expected Playset Foil]}), Int64.Type),",
+          "    #\"Added Conditional Column\" = Table.AddColumn(#\"Added Custom 3\", \"Normal Completed\", each if ([Playset Normal] = [Expected Playset Normal]) then true else false, Logical.Type),",
+          "    #\"Added Conditional Column 2\" = Table.AddColumn(#\"Added Conditional Column\", \"Foil Completed\", each if ([Playset Foil] = [Expected Playset Foil]) then true else false, Logical.Type),",
+          "    AddPendingNormal = Table.AddColumn(#\"Added Conditional Column 2\", \"Pending Normal\", each [Expected Playset Normal] - [Playset Normal], Int64.Type),",
+          "    AddPendingFoil = Table.AddColumn(AddPendingNormal, \"Pending Foil\", each [Expected Playset Foil] - [Playset Foil], Int64.Type),",
+          "    AddPendingFoilValue =Table.AddColumn(AddPendingFoil, \"Pending Foil Value\", each [Pending Foil] * [Foil Price] ,Currency.Type ),",
+          "    ReplacePendingFoilValue=Table.ReplaceValue(AddPendingFoilValue,null,0,Replacer.ReplaceValue,{\"Pending Foil Value\"}),",
+          "    AddPendingNormalValue =Table.AddColumn(ReplacePendingFoilValue, \"Pending Normal Value\", each [Pending Normal] * [Market Price],Currency.Type ),",
+          "    AddPendingValue =Table.AddColumn(AddPendingNormalValue, \"Pending Total Value\", each [Pending Foil Value] + [Pending Normal Value],Currency.Type ),",
+          "    AddCompleted= Table.AddColumn(AddPendingValue, \"Completed\", each if [Normal Completed] and [Foil Completed] = true then true else false, Logical.Type)",
+          "in",
+          "    AddCompleted",
           "in",
           "    Source"
         ],
@@ -215,10 +230,6 @@
         "name": "SWU Tracker",
         "annotations": [
           {
-            "name": "PBI_NavigationStepName",
-            "value": "Navigation"
-          },
-          {
             "name": "PBI_ResultType",
             "value": "Text"
           }
@@ -226,6 +237,62 @@
         "expression": "\"https://docs.google.com/spreadsheets/d/1f6evlTIbbhwZl9gSv9WaA1RlJsS-5Z99Qev1PUYYONg/edit?gid=1753084144#gid=1753084144\" meta [IsParameterQuery=true, Type=\"Text\", IsParameterQueryRequired=true]",
         "kind": "m",
         "lineageTag": "0eb73c22-99f2-47f3-be78-036c6f0186e0"
+      },
+      {
+        "name": "Playset Normal",
+        "annotations": [
+          {
+            "name": "PBI_ResultType",
+            "value": "Number"
+          }
+        ],
+        "description": "Number of cards required to complete a playset of normal cards.",
+        "expression": "3 meta [IsParameterQuery=true, List={1, 3}, DefaultValue=3, Type=\"Number\", IsParameterQueryRequired=true]",
+        "kind": "m",
+        "lineageTag": "bad6b88a-65ce-4a0d-be65-fdbc251b6834"
+      },
+      {
+        "name": "Playset Foil",
+        "annotations": [
+          {
+            "name": "PBI_ResultType",
+            "value": "Number"
+          }
+        ],
+        "description": "Number of cards required to complete a playset of foil cards.",
+        "expression": "1 meta [IsParameterQuery=true, List={1, 3}, DefaultValue=1, Type=\"Number\", IsParameterQueryRequired=true]",
+        "kind": "m",
+        "lineageTag": "e3ab5ce6-23a4-4b0d-8b98-a5210b3b931f"
+      },
+      {
+        "name": "Playset Hyperspace",
+        "annotations": [
+          {
+            "name": "PBI_ResultType",
+            "value": "Number"
+          }
+        ],
+        "description": "Number of cards required to complete a playset of hyperspace cards.",
+        "expression": "1 meta [IsParameterQuery=true, List={1, 3}, DefaultValue=1, Type=\"Number\", IsParameterQueryRequired=true]",
+        "kind": "m",
+        "lineageTag": "0768af52-0a76-4642-9b49-e98e8031d4db"
+      },
+      {
+        "name": "Playset Hyperspace Foil",
+        "annotations": [
+          {
+            "name": "PBI_NavigationStepName",
+            "value": "Navigation"
+          },
+          {
+            "name": "PBI_ResultType",
+            "value": "Number"
+          }
+        ],
+        "description": "Number of cards required to complete a playset of hyperspace foil cards.",
+        "expression": "1 meta [IsParameterQuery=true, List={1, 3}, DefaultValue=1, Type=\"Number\", IsParameterQueryRequired=true]",
+        "kind": "m",
+        "lineageTag": "9f2aeb64-faa0-439b-9283-36da78e77778"
       }
     ],
     "queryGroups": [
@@ -521,12 +588,12 @@
         "name": "Collection",
         "annotations": [
           {
-            "name": "PBI_NavigationStepName",
-            "value": "Navigation"
-          },
-          {
             "name": "PBI_ResultType",
             "value": "Table"
+          },
+          {
+            "name": "PBI_NavigationStepName",
+            "value": "Navigation"
           }
         ],
         "columns": [
@@ -538,7 +605,7 @@
                 "value": "Automatic"
               }
             ],
-            "dataType": "int64",
+            "dataType": "double",
             "formatString": "0",
             "lineageTag": "56509ce4-b1d1-497e-87a9-869b1cd7c465",
             "sourceColumn": "Foil",
@@ -566,7 +633,7 @@
                 "value": "Automatic"
               }
             ],
-            "dataType": "int64",
+            "dataType": "double",
             "formatString": "0",
             "lineageTag": "a0a99985-9303-409d-9b17-69668dfe4e67",
             "sourceColumn": "Normal",
@@ -609,7 +676,7 @@
                 "value": "Automatic"
               }
             ],
-            "dataType": "int64",
+            "dataType": "double",
             "expression": "Collection[Foil]+Collection[Normal]",
             "formatString": "0",
             "isDataTypeInferred": true,
@@ -648,6 +715,251 @@
             "lineageTag": "399b1d0f-cc50-4940-9cf3-932527027e5b",
             "summarizeBy": "sum",
             "type": "calculated"
+          },
+          {
+            "name": "Expected Playset Foil",
+            "annotations": [
+              {
+                "name": "SummarizationSetBy",
+                "value": "Automatic"
+              }
+            ],
+            "dataType": "int64",
+            "formatString": "0",
+            "lineageTag": "3a695010-282b-42ae-b313-b0c96d671ac7",
+            "sourceColumn": "Expected Playset Foil",
+            "summarizeBy": "sum"
+          },
+          {
+            "name": "Expected Playset Normal",
+            "annotations": [
+              {
+                "name": "SummarizationSetBy",
+                "value": "Automatic"
+              }
+            ],
+            "dataType": "int64",
+            "formatString": "0",
+            "lineageTag": "cb421643-ed1c-4806-bc08-b04d26ba83ef",
+            "sourceColumn": "Expected Playset Normal",
+            "summarizeBy": "sum"
+          },
+          {
+            "name": "Type",
+            "annotations": [
+              {
+                "name": "SummarizationSetBy",
+                "value": "Automatic"
+              }
+            ],
+            "dataType": "string",
+            "lineageTag": "9d42305c-0d7f-4d54-aad7-3385b1fcf31f",
+            "sourceColumn": "Type",
+            "summarizeBy": "none"
+          },
+          {
+            "name": "Variant Type",
+            "annotations": [
+              {
+                "name": "SummarizationSetBy",
+                "value": "Automatic"
+              }
+            ],
+            "dataType": "string",
+            "lineageTag": "d74a3db1-a458-48c0-ba14-d54635453091",
+            "sourceColumn": "Variant Type",
+            "summarizeBy": "none"
+          },
+          {
+            "name": "Playset Normal",
+            "annotations": [
+              {
+                "name": "SummarizationSetBy",
+                "value": "Automatic"
+              }
+            ],
+            "dataType": "int64",
+            "formatString": "0",
+            "lineageTag": "ffabade2-c9da-4598-a12a-b2b82cf68575",
+            "sourceColumn": "Playset Normal",
+            "summarizeBy": "sum"
+          },
+          {
+            "name": "Playset Foil",
+            "annotations": [
+              {
+                "name": "SummarizationSetBy",
+                "value": "Automatic"
+              }
+            ],
+            "dataType": "int64",
+            "formatString": "0",
+            "lineageTag": "a716e634-b4b8-4d41-9a3a-0996ada831d5",
+            "sourceColumn": "Playset Foil",
+            "summarizeBy": "sum"
+          },
+          {
+            "name": "Normal Completed",
+            "annotations": [
+              {
+                "name": "SummarizationSetBy",
+                "value": "Automatic"
+              }
+            ],
+            "dataType": "boolean",
+            "formatString": "\"TRUE\";\"TRUE\";\"FALSE\"",
+            "lineageTag": "1b5d8471-b227-433d-b52a-df74c77ee7f3",
+            "sourceColumn": "Normal Completed",
+            "summarizeBy": "none"
+          },
+          {
+            "name": "Foil Completed",
+            "annotations": [
+              {
+                "name": "SummarizationSetBy",
+                "value": "Automatic"
+              }
+            ],
+            "dataType": "boolean",
+            "formatString": "\"TRUE\";\"TRUE\";\"FALSE\"",
+            "lineageTag": "5332d417-cd1e-46d7-ad3a-de09a21f5d3c",
+            "sourceColumn": "Foil Completed",
+            "summarizeBy": "none"
+          },
+          {
+            "name": "Market Price",
+            "annotations": [
+              {
+                "name": "SummarizationSetBy",
+                "value": "Automatic"
+              },
+              {
+                "name": "PBI_FormatHint",
+                "value": "{\"isGeneralNumber\":true}"
+              }
+            ],
+            "dataType": "double",
+            "lineageTag": "ca0711e6-087f-4692-a9f8-578322cf4e92",
+            "sourceColumn": "Market Price",
+            "summarizeBy": "sum"
+          },
+          {
+            "name": "Foil Price",
+            "annotations": [
+              {
+                "name": "SummarizationSetBy",
+                "value": "Automatic"
+              },
+              {
+                "name": "PBI_FormatHint",
+                "value": "{\"isGeneralNumber\":true}"
+              }
+            ],
+            "dataType": "double",
+            "lineageTag": "5a7ac40b-aee3-4bc0-ab59-b6b7ba094f53",
+            "sourceColumn": "Foil Price",
+            "summarizeBy": "sum"
+          },
+          {
+            "name": "Pending Normal",
+            "annotations": [
+              {
+                "name": "SummarizationSetBy",
+                "value": "Automatic"
+              }
+            ],
+            "dataType": "int64",
+            "formatString": "0",
+            "lineageTag": "03aa8d20-2d0e-454d-ae8a-de2e7410b7b4",
+            "sourceColumn": "Pending Normal",
+            "summarizeBy": "sum"
+          },
+          {
+            "name": "Pending Foil",
+            "annotations": [
+              {
+                "name": "SummarizationSetBy",
+                "value": "Automatic"
+              }
+            ],
+            "dataType": "int64",
+            "formatString": "0",
+            "lineageTag": "f48561eb-6ca2-455c-862b-420f2771b382",
+            "sourceColumn": "Pending Foil",
+            "summarizeBy": "sum"
+          },
+          {
+            "name": "Completed",
+            "annotations": [
+              {
+                "name": "SummarizationSetBy",
+                "value": "Automatic"
+              }
+            ],
+            "changedProperties": [
+              {
+                "property": "DataType"
+              }
+            ],
+            "dataType": "int64",
+            "formatString": "0",
+            "lineageTag": "217e5169-36bc-4d58-bab6-1c521990689b",
+            "sourceColumn": "Completed",
+            "summarizeBy": "sum"
+          },
+          {
+            "name": "Pending Foil Value",
+            "annotations": [
+              {
+                "name": "SummarizationSetBy",
+                "value": "Automatic"
+              },
+              {
+                "name": "PBI_FormatHint",
+                "value": "{\"currencyCulture\":\"en-US\"}"
+              }
+            ],
+            "dataType": "double",
+            "formatString": "\\$#,0.###############;(\\$#,0.###############);\\$#,0.###############",
+            "lineageTag": "9bab44e3-2370-43d1-8b43-b8cea723cc60",
+            "sourceColumn": "Pending Foil Value",
+            "summarizeBy": "sum"
+          },
+          {
+            "name": "Pending Normal Value",
+            "annotations": [
+              {
+                "name": "SummarizationSetBy",
+                "value": "Automatic"
+              },
+              {
+                "name": "PBI_FormatHint",
+                "value": "{\"currencyCulture\":\"en-US\"}"
+              }
+            ],
+            "dataType": "decimal",
+            "formatString": "\\$#,0.###############;(\\$#,0.###############);\\$#,0.###############",
+            "lineageTag": "b5a3ed2a-e541-4be9-ad8c-0b96931e6764",
+            "sourceColumn": "Pending Normal Value",
+            "summarizeBy": "sum"
+          },
+          {
+            "name": "Pending Total Value",
+            "annotations": [
+              {
+                "name": "SummarizationSetBy",
+                "value": "Automatic"
+              },
+              {
+                "name": "PBI_FormatHint",
+                "value": "{\"currencyCulture\":\"en-US\"}"
+              }
+            ],
+            "dataType": "decimal",
+            "formatString": "\\$#,0.###############;(\\$#,0.###############);\\$#,0.###############",
+            "lineageTag": "4d5e3e1d-7e02-4e65-84f8-212892dd8181",
+            "sourceColumn": "Pending Total Value",
+            "summarizeBy": "sum"
           }
         ],
         "lineageTag": "b2d626f4-9e40-42ee-8492-9b0c1067d127",
@@ -658,7 +970,7 @@
             "source": {
               "expression": [
                 "let",
-                "    Source = Table.Combine({GetCollectionTab(\"sor\"), GetCollectionTab(\"shd\")})",
+                "    Source = Table.Combine({GetCollectionTab(\"SOR\"), GetCollectionTab(\"SHD\")})",
                 "in",
                 "    Source"
               ],
@@ -671,12 +983,12 @@
         "name": "SWU-DB Sets",
         "annotations": [
           {
-            "name": "PBI_NavigationStepName",
-            "value": "Navigation"
-          },
-          {
             "name": "PBI_ResultType",
             "value": "Table"
+          },
+          {
+            "name": "PBI_NavigationStepName",
+            "value": "Navigation"
           }
         ],
         "columns": [
@@ -991,6 +1303,34 @@
             "lineageTag": "63f61f23-51ba-4825-b412-cafb8518380e",
             "summarizeBy": "sum",
             "type": "calculated"
+          },
+          {
+            "name": "Playset Normal",
+            "annotations": [
+              {
+                "name": "SummarizationSetBy",
+                "value": "Automatic"
+              }
+            ],
+            "dataType": "int64",
+            "formatString": "0",
+            "lineageTag": "925ffd59-70d6-407d-91bb-d849df663a6e",
+            "sourceColumn": "Playset Normal",
+            "summarizeBy": "sum"
+          },
+          {
+            "name": "Playset Foil",
+            "annotations": [
+              {
+                "name": "SummarizationSetBy",
+                "value": "Automatic"
+              }
+            ],
+            "dataType": "int64",
+            "formatString": "0",
+            "lineageTag": "800e7b44-0dd9-4eb7-9e1d-eb2a5c4ba535",
+            "sourceColumn": "Playset Foil",
+            "summarizeBy": "sum"
           }
         ],
         "lineageTag": "25712e69-f991-422d-8770-d04cdf07ba34",
@@ -1003,9 +1343,12 @@
               "expression": [
                 "let",
                 "    Source = #\"SWU-DB Dataset\",",
-                "    #\"Removed Columns\" = Table.RemoveColumns(Source,{\"Aspects\", \"Traits\", \"Arenas\", \"Keywords\"})",
+                "    #\"Removed Columns\" = Table.RemoveColumns(Source,{\"Aspects\", \"Traits\", \"Arenas\", \"Keywords\"}),",
+                "    #\"Added Custom\" = Table.AddColumn(#\"Removed Columns\", \"Playset Normal\", each if [Type]=\"Leader\" or [Type]=\"Base\"  then 1 else if [Variant Type]=\"Normal\" then #\"Playset Normal\" else #\"Playset Hyperspace\"),",
+                "    #\"Added Custom1\" = Table.AddColumn(#\"Added Custom\", \"Playset Foil\", each if [Foil Price] is null then 0 else if [Type]=\"Leader\" or [Type]=\"Base\" then 1 else if [Variant Type]=\"Normal\" then #\"Playset Foil\" else #\"Playset Hyperspace Foil\"),",
+                "    #\"Changed Type\" = Table.TransformColumnTypes(#\"Added Custom1\",{{\"Card Id\", type text}, {\"Playset Normal\", Int64.Type}, {\"Playset Foil\", Int64.Type}})",
                 "in",
-                "    #\"Removed Columns\""
+                "    #\"Changed Type\""
               ],
               "type": "m"
             }
@@ -1015,10 +1358,6 @@
       {
         "name": "SWU-DB Aspects",
         "annotations": [
-          {
-            "name": "PBI_NavigationStepName",
-            "value": "Navigation"
-          },
           {
             "name": "PBI_ResultType",
             "value": "Table"
@@ -1077,10 +1416,6 @@
         "name": "SWU-DB Traits",
         "annotations": [
           {
-            "name": "PBI_NavigationStepName",
-            "value": "Navigation"
-          },
-          {
             "name": "PBI_ResultType",
             "value": "Table"
           }
@@ -1137,10 +1472,6 @@
       {
         "name": "SWU-DB Arenas",
         "annotations": [
-          {
-            "name": "PBI_NavigationStepName",
-            "value": "Navigation"
-          },
           {
             "name": "PBI_ResultType",
             "value": "Table"
@@ -1199,10 +1530,6 @@
         "name": "SWU-DB Keywords",
         "annotations": [
           {
-            "name": "PBI_NavigationStepName",
-            "value": "Navigation"
-          },
-          {
             "name": "PBI_ResultType",
             "value": "Table"
           }
@@ -1259,10 +1586,6 @@
       {
         "name": "Expansions",
         "annotations": [
-          {
-            "name": "PBI_NavigationStepName",
-            "value": "Navigation"
-          },
           {
             "name": "PBI_ResultType",
             "value": "Table"
@@ -1567,10 +1890,6 @@
       {
         "name": "Aspects",
         "annotations": [
-          {
-            "name": "PBI_NavigationStepName",
-            "value": "Navigation"
-          },
           {
             "name": "PBI_ResultType",
             "value": "Table"
